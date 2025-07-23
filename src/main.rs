@@ -20,12 +20,20 @@ fn panic(info: &PanicInfo) -> ! {
     bcOS::test_panic_handler(info)
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
-    println!("Hello! This is bcOS{}", "!");
+    println!("Hello World{}", "!");
+
+    bcOS::init(); // new
+
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3(); // new
+
+    // as before
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash!");
     loop {}
 }
 
