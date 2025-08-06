@@ -1,10 +1,10 @@
 #![no_std]
 #![no_main]
 
-use bcOS::{exit_qemu, serial_print, serial_println, QemuExitCode};
+use bcos::{QemuExitCode, exit_qemu, serial_print, serial_println};
 use core::panic::PanicInfo;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     should_fail();
     serial_println!("[test did not panic]");
@@ -13,7 +13,7 @@ pub extern "C" fn _start() -> ! {
 }
 
 fn should_fail() {
-    serial_print!("should_fail... ");
+    serial_print!("should_panic::should_fail...\t");
     assert_eq!(0, 1);
 }
 
