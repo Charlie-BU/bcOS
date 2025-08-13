@@ -7,7 +7,7 @@ use core::panic::PanicInfo;
 use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
-#[unsafe(no_mangle)]
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
     serial_print!("stack_overflow::stack_overflow...\t");
 
@@ -21,6 +21,7 @@ pub extern "C" fn _start() -> ! {
 }
 
 #[allow(unconditional_recursion)]
+#[no_mangle]  // 移除 unsafe
 fn stack_overflow() {
     stack_overflow(); // for each recursion, the return address is pushed
     volatile::Volatile::new(0).read(); // prevent tail recursion optimizations

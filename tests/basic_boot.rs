@@ -7,7 +7,7 @@
 use bcos::println;
 use core::panic::PanicInfo;
 
-#[unsafe(no_mangle)] // don't mangle the name of this function
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
     test_main();
 

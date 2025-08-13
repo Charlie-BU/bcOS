@@ -4,6 +4,8 @@
 #![feature(abi_x86_interrupt)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+#![feature(const_mut_refs)]
+#![feature(raw_ref_op)]
 
 extern crate alloc;
 use core::panic::PanicInfo;
@@ -12,7 +14,8 @@ pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;
-pub mod serial;
+#[macro_use]
+pub mod serial;  // 添加 pub 关键字
 pub mod task;
 pub mod vga_buffer;
 

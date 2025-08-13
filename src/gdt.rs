@@ -12,8 +12,11 @@ lazy_static! {
             const STACK_SIZE: usize = 4096 * 5;
             static mut STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
-            let stack_start = VirtAddr::from_ptr(&raw const STACK);
-            let stack_end = stack_start + STACK_SIZE;
+            // 注意：&raw const 需要 nightly；地址计算用 u64
+            let stack_start = unsafe {
+                VirtAddr::from_ptr(&raw const STACK)
+            };
+            let stack_end = stack_start + STACK_SIZE as u64;
             stack_end
         };
         tss
@@ -23,15 +26,11 @@ lazy_static! {
 lazy_static! {
     static ref GDT: (GlobalDescriptorTable, Selectors) = {
         let mut gdt = GlobalDescriptorTable::new();
-        let code_selector = gdt.add_entry(Descriptor::kernel_code_segment());
-        let tss_selector = gdt.add_entry(Descriptor::tss_segment(&TSS));
-        (
-            gdt,
-            Selectors {
-                code_selector,
-                tss_selector,
-            },
-        )
+        // 0.15+ 用 append，返回 SegmentSelector
+        let code_selector = gdt.append(Descriptor::kernel_code_segment());
+        let tss_selector  = gdt.append(Descriptor::tss_segment(&TSS));
+
+        (gdt, Selectors { code_selector, tss_selector })
     };
 }
 
@@ -44,6 +43,7 @@ pub fn init() {
     use x86_64::instructions::segmentation::{CS, Segment};
     use x86_64::instructions::tables::load_tss;
 
+    // 这里再 load，满足 &'static self 约束
     GDT.0.load();
     unsafe {
         CS::set_reg(GDT.1.code_selector);
